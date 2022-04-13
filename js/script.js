@@ -27,7 +27,7 @@ if (localStorage.getItem('sTimes') != null && localStorage.getItem('sTimes') >= 
 } else {
 	if (!localStorage.getItem("appid1") || !localStorage.getItem("key1") || localStorage.getItem("appid1") == null ||
 		localStorage.getItem("key1") == null) {
-		if (location.host == "freysu.github.io") {
+		if (location.host != "my-translator-freysu.vercel.app") {
 			showToast("&emsp;&emsp;<b>欢迎新来的小伙伴来访！</b><br/>&emsp;&emsp;现已推出<b>【免申请 API 体验 3 分钟】功能</b>和<b>【一键提取查重报告标红内容】功能</b>，欢迎点击右上角使用。<br/>&emsp;&emsp;如需使用降重功能请先点击右上角的【配置账号】！如果你不会配置的话，可以点击右上角的【使用帮助】！<br/>&emsp;&emsp;解决不了的话加群反馈作者(QQ群:238223706)</br>&emsp;&emsp;如果本网站加载得很慢，可以访问备用网站，地址是</br>&emsp;&emsp;<a href='https://my-translator-freysu.vercel.app'>https://my-translator-freysu.vercel.app</a>", 5000);
 		} else {
 			showToast("&emsp;&emsp;<b>欢迎新来的小伙伴来访！</b><br/>&emsp;&emsp;现已推出<b>【免申请 API 体验 3 分钟】功能</b>和<b>【一键提取查重报告标红内容】功能</b>，欢迎点击右上角使用。<br/>&emsp;&emsp;如需使用降重功能请先点击右上角的【配置账号】！如果你不会配置的话，可以点击右上角的【使用帮助】！<br/>&emsp;&emsp;解决不了的话加群反馈作者(QQ群:238223706)", 5000);
@@ -41,7 +41,7 @@ if (localStorage.getItem('sTimes') != null && localStorage.getItem('sTimes') >= 
 			$("#yourAppid").val("");
 			$("#yourKey").val("");
 		} else if (localStorage.getItem("sTimes") < 0) {
-			if (location.host == "freysu.github.io") {
+			if (location.host != "my-translator-freysu.vercel.app") {
 				showToast("&emsp;&emsp;欢迎老朋友" + appid + "，今天又是美好的一天，论文人加油啊！<br/>&emsp;&emsp;现已推出<b>【一键提取查重报告标红内容】功能</b>，欢迎点击右上角使用。<br/>&emsp;&emsp;如果你遇到了账号配置出错，大概率是因为百度那边服务器抽风了，所以你可以休息一会再尝试~也可以去查阅一下帮助，我已更新最新教程！<br/>&emsp;&emsp;解决不了的话加群反馈作者(QQ群:238223706)</br>&emsp;&emsp;如果本网站加载得很慢，可以访问备用网站，地址是</br>&emsp;&emsp;<a href='https://my-translator-freysu.vercel.app'>https://my-translator-freysu.vercel.app</a>", 4000);
 			} else {
 				showToast(
@@ -97,7 +97,7 @@ $("#saveBtn").click(() => {
 							$("#yourKey").val("");
 							return;
 						} else {
-							if (localStorage.getItem("appid1") == secret().WtdKltf2 && localStorage.getItem("key1") == secret().zDQA3 && localStorage.getItem("sTimes") == -1) {
+							if (localStorage.getItem("appid1") == secret().WtdKltf2 && localStorage.getItem("key1") == secret().zDQA3 && (localStorage.getItem("sTimes") == -1 || localStorage.getItem('sTimes') == 0)) {
 								showToast('<b>你真棒！想白嫖到底是吧？被我逮到了吧？哈哈哈！</b>', 4000)
 								localStorage.removeItem("appid1");
 								localStorage.removeItem("key1");
@@ -129,6 +129,7 @@ $("#saveBtn").click(() => {
 	}
 	timer = setTimeout(() => {
 		fn();
+		document.querySelector(`#start`).scrollIntoView(); // 页面不刷新跳转
 		timer = null;
 	}, 500);
 })
@@ -158,15 +159,17 @@ $(".clear").click(() => {
 		$("#zifu").text("0");
 		$(".tongji").detach();
 		$(".originData").val("");
-		// $(".lead").text("此处将会显示翻译结果")
 		$(".lead").text("")
-		// $(".compareRes").text("此处将会显示对比结果")
 		$(".compareRes").text("")
+		if ($('.compareResDiv').css('display') == 'block') {
+			$('.compareResDiv').css('display', "none");
+		}
 		for (let i = 0; i < $(".card").length; i++) {
 			if ($(".isLow-" + i).hasClass("alert-success")) {
 				$(".isLow-" + i).removeClass("alert-success")
 			}
 		}
+		showToast('已清空！',3000)
 	}
 	if (timer !== null) {
 		clearTimeout(timer);
@@ -1291,10 +1294,12 @@ okBtn.click(() => {
 					$("#yourKey").val("");
 					localStorage.setItem("sTimes", 0);
 					showToast(`<b>你的体验时长已结束！</b>如果还想使用降重功能，请去按照教程申请自己的百度翻译 API~`, 4000);
+					sendRequest(localStorage.getItem("appid1"), "有人体验过了还想体验！" + "IP 地址：" + kehu_ip, 7);
 					$('#exampleModal1').modal('hide')
 					$('.modal-backdrop').css("z-index", "-10");
 					$('body').css("padding-right", "");
 				} else {
+				sendRequest(localStorage.getItem("appid1"), "有老用户尝试体验白嫖！" + "IP 地址：" + kehu_ip, 7);
 					showToast(`<b>很抱歉，你无法参与本次活动！`, 4000);
 					$('#exampleModal1').modal('hide')
 					$('.modal-backdrop').css("z-index", "-10");
@@ -1323,6 +1328,7 @@ okBtn.click(() => {
 				$('.modal-backdrop').css("z-index", "-10");
 				$('body').css("padding-right", "");
 				showToast("请在输入框填写要翻译的内容，然后点击【翻译并对比】按钮", 4500);
+				document.querySelector(`#start`).scrollIntoView(); // 页面不刷新跳转
 			}
 		} else if (rscode == "") {
 			showToast("未输入，提交失败！", 4000);
